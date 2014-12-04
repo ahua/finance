@@ -1,7 +1,9 @@
-from .index import IndexHandler
-from .test import TestHandler
+from .handlers import *
+from .test import *
 
-handlers = [
+web_handlers = [
     ('/admin', IndexHandler),
+    ('/admin/english', EnglishHandler),
+    ('/admin/chinese', ChineseHandler),
     ('/test', TestHandler)
     ]
