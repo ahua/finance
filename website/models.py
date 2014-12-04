@@ -9,9 +9,12 @@ from sqlalchemy import Column, Integer, String, DateTime, Float, Boolean
 
 MysqlBase = declarative_base()
 
+__all__ = ['Category', 'Area', 'Stock', 'DailyData', 'create_session']
+
 class Category(MysqlBase):
     __tablename__ = 'category'
     id = Column(Integer, nullable=False, autoincrement=False, primary_key=True)
+    pid = Column(Integer, nullable=False)
     name = Column(String(30), nullable=False)
     is_leaf_node = Column(Boolean, nullable=False)
     created_at = Column(DateTime, nullable=False, default=datetime.datetime.now)
@@ -43,14 +46,14 @@ class DailyData(MysqlBase):
     code = Column(String(6), nullable=False, autoincrement=False, primary_key=True)
     p_open = Column(Float, nullable=True)
     p_close = Column(Float, nullable=True)
-    p_hign = Column(Float, nullable=True)
+    p_high = Column(Float, nullable=True)
     p_low = Column(Float, nullable=True)
     p_inc = Column(Float, nullable=True)
     p_earning_ratio = Column(Float, nullable=True)
     trade_count = Column(Integer, nullable=True)       
     trade_money = Column(Float, nullable=True)   # 单位：亿
     market_value = Column(Float, nullable=True)  # 单位：亿
-    
+    is_suspend_trading = Column(Boolean, nullable=False) # 停牌?    
 
 _engine = _Session = None    
 def create_session():
