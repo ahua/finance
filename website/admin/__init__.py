@@ -1,5 +1,7 @@
 from .index import IndexHandler
+from .test import TestHandler
 
 handlers = [
-    ('/admin', IndexHandler)
+    ('/admin', IndexHandler),
+    ('/test', TestHandler)
     ]
