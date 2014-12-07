@@ -1,0 +1,12 @@
+{% extends "../header.html" %}
+
+{% block sidebar %}
+<div class="col-sm-3 col-md-2 sidebar">
+  <ul class="nav nav-sidebar">
+    {% for i in demos %}
+    <li {% if i == what %}class="active"{% end %}><a href="/demo/index?what={{i}}">{{i}}</a></li>
+    {% end %}
+  </ul>
+
+</div>
+{% end %}

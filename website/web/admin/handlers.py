@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from website.base import BaseHandler
+from ..base import BaseHandler
 
 __all__ = ['IndexHandler', 'EnglishHandler', 'ChineseHandler']
 
