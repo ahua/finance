@@ -7,12 +7,20 @@ from website import *
 from lib import get_data
 
 if __name__ == "__main__":
-    data = get_data()
-    session = create_session()
+    if len(sys.argv) < 3:
+        print "Usage %s filename day" % sys.argv[0]
+        sys.exit(1)
+    filename = sys.argv[1]
+    day = sys.argv[2]
+    if len(day) != 8:
+        print "len(day) != 8"
+        sys.exit(1)
 
+    data = get_data(filename)
+    session = create_session()
     for i in data:
         o = DailyData()
-        o.day = sys.argv[2]
+        o.day = day
         o.code = i['code']
         o.p_open = i['p_open']
         o.p_close = i['p_close']

@@ -71,7 +71,7 @@ def create_session():
     if not _engine or not _Session:
         _engine = create_engine('mysql+mysqldb://admin:admin@localhost:3306/finance?charset=utf8',
                                 encoding="utf8",
-                                echo=True,
+                                echo=False,
                                 pool_size=5,
                                 pool_recycle=10)
         MysqlBase.metadata.create_all(_engine)
