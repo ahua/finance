@@ -2,6 +2,7 @@
 #-*- coding:utf-8 -*-
 
 import tornado.web
+from ..models import *
 
 class BaseHandler(tornado.web.RequestHandler):
     def prepare(self):
@@ -12,5 +13,10 @@ class BaseHandler(tornado.web.RequestHandler):
         else:
             self.context['uri'] = self.request.uri
 
-        
+    @property
+    def mysql_session(self):
+        if not hasattr(self, "_mysql_session"):
+            self._mysql_session = create_session()
+        return self._mysql_session
+
 

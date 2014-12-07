@@ -34,6 +34,6 @@ def init_app_settings():
 
     options.run_parse_callbacks()
     _app_settings = options.as_dict()
-    for i in _app_settings:
-        print i, _app_settings[i]
+#    for i in _app_settings:
+#        print i, _app_settings[i]
     return _app_settings

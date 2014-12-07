@@ -6,6 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, DateTime, Float, Boolean
+from sqlalchemy.sql import func
 
 MysqlBase = declarative_base()
 
@@ -19,6 +20,28 @@ class Category(MysqlBase):
     is_leaf_node = Column(Boolean, nullable=False)
     created_at = Column(DateTime, nullable=False, default=datetime.datetime.now)
     updated_at = Column(DateTime, nullable=False, default=datetime.datetime.now)
+
+    @classmethod
+    def get_all_leaf_cat(cls, pid_list, session):
+        id_list = []
+        while pid_list:
+            tmp_pid_list = []
+            _qs = session.query(cls).filter(cls.pid.in_(pid_list))
+            for o in _qs:
+                # pid == id
+                if not o.is_leaf_node and o.id in pid_list:
+                    continue
+                if o.is_leaf_node:
+                    id_list.append(o.id)
+                else:
+                    tmp_pid_list.append(o.id)
+            pid_list = tmp_pid_list
+        return id_list
+
+    @classmethod
+    def get_all_top_cat(cls, session):
+        _qs = session.query(cls).filter(cls.pid==cls.id)
+        return _qs
 
 
 class Area(MysqlBase):
@@ -38,7 +61,12 @@ class Stock(MysqlBase):
     market_day = Column(String(6), nullable=False)
     created_at = Column(DateTime, nullable=False, default=datetime.datetime.now)
     updated_at = Column(DateTime, nullable=False, default=datetime.datetime.now)
-    
+
+    @classmethod
+    def get_all_stock(cls, cat_list, session):
+        _qs = session.query(cls).filter(cls.category_id.in_(cat_list))
+        return _qs
+
     
 class DailyData(MysqlBase):
     __tablename__ = 'daily_data'
@@ -54,6 +82,25 @@ class DailyData(MysqlBase):
     trade_money = Column(Float, nullable=True)   # 单位：亿
     market_value = Column(Float, nullable=True)  # 单位：亿
     is_suspend_trading = Column(Boolean, nullable=False) # 停牌?    
+
+    @classmethod
+    def get_daily_data(cls, code_list, day, session):
+        _qs = session.query(cls).filter(cls.day==day, cls.code.in_(code_list))
+        return _qs
+
+    @classmethod
+    def get_sum_column(cls, code_list, day, column, session):
+        _qs = session.query(func.sum(column)).filter(cls.day==day, cls.code.in_(code_list)).all()
+        return round(_qs[0][0], 2)
+
+    @classmethod
+    def get_latest_day(cls, session):
+        _qs = session.query(cls.day).distinct().all()
+        
+        # _qs = [(u'20141202',), (u'20141204',), (u'20141205',)]
+        return _qs[-1][0]
+        
+
 
 class Chinese(MysqlBase):
     __tablename__ = 'chinese'
