@@ -36,13 +36,13 @@ class DailyHandler(BaseHandler):
             s = '#%02X%02X%02X' % (r(),r(),r())
             return s
         t = []
+        total_market_value = sum(data)
         for i in d:
-            t.append({'value': i['market_value'], 
+            t.append({'value': round(i['market_value']/total_market_value * 100, 2), 
                       'label': i['name'],
                       'color': random_color(),
                       'highlight': random_color()})
         self.context['doughnut_data'] = json.dumps(t)
         self.context['market_value_data'] = json.dumps(market_value_data)
-        print self.context['market_value_data']
         self.render('stock/daily.html', **self.context)
 
