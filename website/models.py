@@ -55,6 +55,16 @@ class DailyData(MysqlBase):
     market_value = Column(Float, nullable=True)  # 单位：亿
     is_suspend_trading = Column(Boolean, nullable=False) # 停牌?    
 
+class Chinese(MysqlBase):
+    __tablename__ = 'chinese'
+    id = Column(Integer, nullable=False, autoincrement=True, primary_key=True)
+    title = Column(String(100), nullable=False)
+    author = Column(String(30), nullable=True)
+    content = Column(String(10000), nullable=False)
+    created_at = Column(DateTime, nullable=False, default=datetime.datetime.now)
+    updated_at = Column(DateTime, nullable=False, default=datetime.datetime.now)
+    
+
 _engine = _Session = None    
 def create_session():
     global _engine, _Session

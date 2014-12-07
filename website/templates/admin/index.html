@@ -2,54 +2,179 @@
 
 {% block main %}
 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-  <h1 class="page-header">Dashboard</h1>
+
+
+
+
+
+
+
+
+
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Firstname</th>
+        <th>Lastname</th>
+        <th>Email</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>John</td>
+        <td>Doe</td>
+        <td>john@example.com</td>
+      </tr>
+      <tr>
+        <td>Mary</td>
+        <td>Moe</td>
+        <td>mary@example.com</td>
+      </tr>
+      <tr>
+        <td>July</td>
+        <td>Dooley</td>
+        <td>july@example.com</td>
+      </tr>
+    </tbody>
+  </table>
   
-  <div class="row placeholders">
-    <div class="col-xs-6 col-sm-3 placeholder">
-      <img data-src="holder.js/200x200/auto/sky" class="img-responsive" alt="Generic placeholder thumbnail">
-      <h4>Label</h4>
-      <span class="text-muted">Something else</span>
-    </div>
-    <div class="col-xs-6 col-sm-3 placeholder">
-      <img data-src="holder.js/200x200/auto/vine" class="img-responsive" alt="Generic placeholder thumbnail">
-      <h4>Label</h4>
-      <span class="text-muted">Something else</span>
-    </div>
-    <div class="col-xs-6 col-sm-3 placeholder">
-      <img data-src="holder.js/200x200/auto/sky" class="img-responsive" alt="Generic placeholder thumbnail">
-      <h4>Label</h4>
-      <span class="text-muted">Something else</span>
-    </div>
-    <div class="col-xs-6 col-sm-3 placeholder">
-      <img data-src="holder.js/200x200/auto/vine" class="img-responsive" alt="Generic placeholder thumbnail">
-      <h4>Label</h4>
-      <span class="text-muted">Something else</span>
-    </div>
-  </div>
 
-  <h2 class="sub-header">Section title</h2>
-  <div class="table-responsive">
-    <table class="table table-striped">
-      <thead>
-	<tr>
-	  <th>#</th>
-	  <th>Header</th>
-	  <th>Header</th>
-	  <th>Header</th>
-	  <th>Header</th>
-	</tr>
-      </thead>
-      <tbody>
-	<tr>
-	  <td>1,001</td>
-	  <td>Lorem</td>
-	  <td>ipsum</td>
-	  <td>dolor</td>
-	  <td>sit</td>
-	</tr>
+  
+  
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Firstname</th>
+        <th>Lastname</th>
+        <th>Email</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>John</td>
+        <td>Doe</td>
+        <td>john@example.com</td>
+      </tr>
+      <tr>
+        <td>Mary</td>
+        <td>Moe</td>
+        <td>mary@example.com</td>
+      </tr>
+      <tr>
+        <td>July</td>
+        <td>Dooley</td>
+        <td>july@example.com</td>
+        </tr>
+    </tbody>
+  </table>
 
-      </tbody>
-    </table>
-  </div>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Firstname</th>
+        <th>Lastname</th>
+        <th>Email</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="success">
+        <td>John</td>
+        <td>Doe</td>
+        <td>john@example.com</td>
+      </tr>
+      <tr>
+        <td>Mary</td>
+        <td>Moe</td>
+        <td class="danger">mary@example.com</td>
+      </tr>
+      <tr class="info">
+        <td>July</td>
+        <td>Dooley</td>
+        <td>july@example.com</td>
+      </tr>
+    </tbody>
+  </table>
+
+    <h2>Button Styles</h2>
+    <button type="button" class="btn btn-default">Default</button>
+    <button type="button" class="btn btn-primary">Primary</button>
+    <button type="button" class="btn btn-success">Success</button>
+    <button type="button" class="btn btn-info">Info</button>
+    <button type="button" class="btn btn-warning">Warning</button>
+    <button type="button" class="btn btn-danger">Danger</button>
+    <button type="button" class="btn btn-link">Link</button>   
+
+    <h2>Button Tags</h2>
+    <a href="#" class="btn btn-info" role="button">Link Button</a>
+    <button type="button" class="btn btn-info">Button</button>
+    <input type="button" class="btn btn-info" value="Input Button">
+    <input type="submit" class="btn btn-info" value="Submit Button">
+
+    <h2>Button Sizes</h2>
+    <button type="button" class="btn btn-primary btn-lg">Large</button>
+    <button type="button" class="btn btn-primary btn-sm">Small</button>
+    <button type="button" class="btn btn-primary btn-xs">XSmall</button>
+
+    <h2>Block Level Buttons</h2>
+    <button type="button" class="btn btn-primary btn-block">Button 1</button>
+    <button type="button" class="btn btn-default btn-block">Button 2</button>
+
+    <h2>Large Block Level Buttons</h2>
+    <button type="button" class="btn btn-primary btn-lg btn-block">Button 1</button>
+    <button type="button" class="btn btn-default btn-lg btn-block">Button 2</button>
+
+    <h2>Small Block Level Buttons</h2>
+    <button type="button" class="btn btn-primary btn-sm btn-block">Button 1</button>
+    <button type="button" class="btn btn-default btn-sm btn-block">Button 2</button>
+
+    <h2>Button States</h2>
+    <button type="button" class="btn btn-primary">Primary Button</button>
+    <button type="button" class="btn btn-primary active">Active Primary</button>
+    <button type="button" class="btn btn-primary disabled">Disabled Primary</button>
+    
+    <div class="row">
+    <ul class="pagination">
+      <li><a href="#">1</a></li>
+      <li class="active"><a href="#">2</a></li>
+      <li><a href="#">3</a></li>
+      <li><a href="#">4</a></li>
+      <li><a href="#">5</a></li>
+    </ul>
+    </div>
+
+    <div class="row">
+    <ul class="pagination">
+      <li><a href="#">1</a></li>
+      <li><a href="#">2</a></li>
+      <li><a href="#">3</a></li>
+      <li class="disabled"><a href="#">4</a></li>
+      <li><a href="#">5</a></li>
+    </ul>
+    </div>
+
+      <h2>Pager</h2>
+      <p>The .previous and .next classes align each link to the sides of the page:</p>                  
+      <ul class="pager">
+        <li class="previous"><a href="#">Previous</a></li>
+        <li class="next"><a href="#">Next</a></li>
+      </ul>
+
+      <form role="form">
+        <div class="form-group">
+          <label for="email">Email:</label>
+          <input type="email" class="form-control" id="email" placeholder="Enter email">
+        </div>
+        <div class="form-group">
+          <label for="pwd">Password:</label>
+          <input type="password" class="form-control" id="pwd" placeholder="Enter password">
+        </div>
+        <div class="checkbox">
+          <label><input type="checkbox"> Remember me</label>
+        </div>
+        <button type="submit" class="btn btn-default">Submit</button>
+      </form>
+    
 </div>
 {% end %}

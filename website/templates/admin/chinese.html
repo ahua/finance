@@ -1,0 +1,29 @@
+{% extends "sidebar.html" %}
+
+{% block head_css %}
+<link rel="stylesheet" href="{{static_url('css/blog.css')}}">
+{% end %}
+
+{% block main %}
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+  <div class="row">
+    
+    <button type="button" class="btn btn-info">编辑</button>
+    <button type="button" class="btn btn-warning">增加</button>
+    
+    <div class="blog-post">
+      <h2 class="blog-post-title">Sample blog post</h2>
+      <p class="blog-post-meta">January 1, 2014 by <a href="#">Mark</a></p>
+      <div class="blog-main">
+	<p>This blog post shows a few different types of content thorted and styled with Bootstrap. Basic typography, images, and code are all supported.</p>
+      </div>
+    </div>
+
+    <ul class="pager">
+      <li class="previous disabled"><a>Previous</a></li>
+      <li class="next"><a href="#">Next</a></li>
+    </ul>
+
+  </div>
+</div>
+{% end %}
