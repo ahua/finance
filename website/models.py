@@ -21,6 +21,17 @@ class Category(MysqlBase):
     created_at = Column(DateTime, nullable=False, default=datetime.datetime.now)
     updated_at = Column(DateTime, nullable=False, default=datetime.datetime.now)
 
+
+    def as_dict(self):
+        d = {}
+        for c in self.__table__.columns:
+            value = getattr(self, c.name)
+            if type(value) is datetime.datetime:
+                d[c.name] = value.strftime("%Y.%m.%d")
+            else:
+                d[c.name] = value
+        return d
+
     @classmethod
     def get_all_leaf_cat(cls, pid_list, session):
         id_list = []
@@ -28,9 +39,6 @@ class Category(MysqlBase):
             tmp_pid_list = []
             _qs = session.query(cls).filter(cls.pid.in_(pid_list))
             for o in _qs:
-                # pid == id
-                if not o.is_leaf_node and o.id in pid_list:
-                    continue
                 if o.is_leaf_node:
                     id_list.append(o.id)
                 else:
@@ -39,8 +47,13 @@ class Category(MysqlBase):
         return id_list
 
     @classmethod
+    def get_all_direct_child(cls, pid, session):
+        _qs = session.query(cls).filter(cls.pid==pid)
+        return _qs
+
+    @classmethod
     def get_all_top_cat(cls, session):
-        _qs = session.query(cls).filter(cls.pid==cls.id)
+        _qs = session.query(cls).filter(cls.pid==-1)
         return _qs
 
 
@@ -62,9 +75,30 @@ class Stock(MysqlBase):
     created_at = Column(DateTime, nullable=False, default=datetime.datetime.now)
     updated_at = Column(DateTime, nullable=False, default=datetime.datetime.now)
 
+    def as_dict(self):
+        d = {}
+        for c in self.__table__.columns:
+            value = getattr(self, c.name)
+            if type(value) is datetime.datetime:
+                d[c.name] = value.strftime("%Y.%m.%d")
+            else:
+                d[c.name] = value
+        return d
+
+    @classmethod
+    def get_code_list(cls, cat_list, session):
+        if cat_list:
+            qs = cls.get_all_stock(cat_list, session)
+            res = [i.code for i in qs]
+            return res
+        return []
+
     @classmethod
     def get_all_stock(cls, cat_list, session):
-        _qs = session.query(cls).filter(cls.category_id.in_(cat_list))
+        if cat_list:
+            _qs = session.query(cls).filter(cls.category_id.in_(cat_list))
+        else:
+            _qs = session.query(cls)
         return _qs
 
     
@@ -83,15 +117,32 @@ class DailyData(MysqlBase):
     market_value = Column(Float, nullable=True)  # 单位：亿
     is_suspend_trading = Column(Boolean, nullable=False) # 停牌?    
 
+    def as_dict(self):
+        d = {}
+        for c in self.__table__.columns:
+            value = getattr(self, c.name)
+            if type(value) is datetime.datetime:
+                d[c.name] = value.strftime("%Y.%m.%d")
+            else:
+                d[c.name] = value
+        return d
+
+
     @classmethod
     def get_daily_data(cls, code_list, day, session):
-        _qs = session.query(cls).filter(cls.day==day, cls.code.in_(code_list))
+        if code_list:
+            _qs = session.query(cls).filter(cls.day==day, cls.code.in_(code_list))
+        else:
+            _qs = session.query(cls).filter(cls.day==day)
         return _qs
 
     @classmethod
     def get_sum_column(cls, code_list, day, column, session):
         _qs = session.query(func.sum(column)).filter(cls.day==day, cls.code.in_(code_list)).all()
-        return round(_qs[0][0], 2)
+        value = _qs[0][0]
+        if value:
+            return round(_qs[0][0], 2)
+        return 0
 
     @classmethod
     def get_latest_day(cls, session):

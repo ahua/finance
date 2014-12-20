@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
+import json
 import tornado.web
 from ..models import *
 
@@ -20,3 +21,11 @@ class BaseHandler(tornado.web.RequestHandler):
         return self._mysql_session
 
 
+    def reply(self, code=0, detail={}):
+        self.set_header('Content-Type', 'text/plain')
+        self.write(json.dumps(
+                {'code': code,
+                 'detail': detail
+                 }, encoding='utf-8', ensure_ascii=True))
+        self.finish()
+        

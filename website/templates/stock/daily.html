@@ -1,21 +1,71 @@
 {% extends "../sidebar.html" %}
 
+{% block head_css %}
+<link rel="stylesheet" href="{{static_url('css/jquery.dataTables.css')}}">
+{% end %}
 {% block head_js %}
 <script src="{{static_url('js/Chart.js')}}"></script>
+<script src="{{static_url('js/jquery.dataTables.js')}}"></script>
 {% end %}
 
 {% block main %}
 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
   <div class="row">
+    <div class="col-sm-4 col-md-5">
     <canvas id="chart-area" style="width=500;height=500"/>
+    </div>
+    <div class="col-sm-5 col-md-5">
+    <canvas  id="canvas" style="width=300;height=100"></canvas>
+    </div>
+  </div>
+
+  <div class="row">
+    <label class="control-label">大类</label>
+    <select id="topcat" class="input-xlarge">
+      <option value="-1">--</option>
+      {% for i in topcat %}
+      <option value="{{i['id']}}">{{i['name']}}</option>
+      {% end %}
+    </select>
+    
+    <label class="control-label">二类</label>
+    <select id="secondcat" class="input-xlarge">
+      <option value="-1">--</option>
+    </select>
+    
+    <label class="control-label">三类</label>
+    <select id="thirdcat" class="input-xlarge">
+      <option value="-1">--</option>
+    </select>
+
+    <button type="submit" class="btn btn-default">查询</button>
   </div>
   <div class="row">
-    <canvas  id="canvas" style="width=300;height=100"></canvas>
+    <table id="dailydata" class="display" cellspacing="0" width="100%">
+      <thead>
+        <tr>
+          <th>代码</th>
+	  <th>名称</th>
+          <th>open</th>
+          <th>close</th>
+          <th>inc</th>
+          <th>市盈率</th>
+          <th>交易额</th>
+          <th>市值</th>
+          <th>停牌</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
   </div>
-</div>
+  
+  
 {% end %}
 
 {% block body_js %}
+
+<script src="{{static_url('js/stock/daily.js')}}"></script>
 <script>
   var market_value_data = {% raw market_value_data %};
   var doughnutData = {% raw doughnut_data %};
@@ -26,7 +76,5 @@
     var ctx = document.getElementById("chart-area").getContext("2d");
     window.myDoughnut = new Chart(ctx).Doughnut(doughnutData, {responsive : true});
   }
-
-  
 </script>
 {% end %}

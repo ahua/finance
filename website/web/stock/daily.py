@@ -9,9 +9,13 @@ class DailyHandler(BaseHandler):
     def get(self, *args, **kwargs):
         d = []
         day = DailyData.get_latest_day(self.mysql_session)
+        topcat = []
         top_cat_list = Category.get_all_top_cat(self.mysql_session)
         for cat in top_cat_list:
+            topcat.append(cat.as_dict())
             leaf_cat_list = Category.get_all_leaf_cat([cat.id], self.mysql_session)
+            if cat.is_leaf_node:
+                leaf_cat_list.append(cat.id)
             _qs = Stock.get_all_stock(cat_list=leaf_cat_list, session=self.mysql_session)
             code_list = [i.code for i in _qs]
             market_value = DailyData.get_sum_column(code_list, day, DailyData.market_value, self.mysql_session)
@@ -44,5 +48,6 @@ class DailyHandler(BaseHandler):
                       'highlight': random_color()})
         self.context['doughnut_data'] = json.dumps(t)
         self.context['market_value_data'] = json.dumps(market_value_data)
+        self.context['topcat'] = topcat
         self.render('stock/daily.html', **self.context)
 
