@@ -12,7 +12,7 @@
 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
   <div class="row">
     <div class="col-sm-4 col-md-5">
-    <canvas id="chart-area" style="width=500;height=500"/>
+    <canvas id="chartcanvas" style="width=500;height=500"/>
     </div>
     <div class="col-sm-5 col-md-5">
     <canvas  id="canvas" style="width=300;height=100"></canvas>
@@ -70,11 +70,11 @@
   var market_value_data = {% raw market_value_data %};
   var doughnutData = {% raw doughnut_data %};
   window.onload = function(){
-    var ctx = document.getElementById("canvas").getContext("2d");
-    window.myBar = new Chart(ctx).Bar(market_value_data, {responsive : true});
+  var ctx1 = document.getElementById("canvas").getContext("2d");
+  window.myBar = new Chart(ctx1).Bar(market_value_data, {responsive : true});
       
-    var ctx = document.getElementById("chart-area").getContext("2d");
-    window.myDoughnut = new Chart(ctx).Doughnut(doughnutData, {responsive : true});
-  }
+  var ctx2 = document.getElementById("chartcanvas").getContext("2d");
+  window.myDoughnut = new Chart(ctx2).Doughnut(doughnutData, {responsive : true});
+   }
 </script>
 {% end %}

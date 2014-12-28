@@ -30,6 +30,26 @@ function update_table(page, psize){
 	    console.log('success.');
 	}
     });
+
+    $.ajax({
+	type: "get",
+	data: data,
+	url: "/stock/api?action=dailysum"
+    }).done(function (res){
+	res = $.parseJSON(res);
+	if(res.code == 0){
+	    var doughnut_data = res.detail.doughnut_data;
+	    $("#chartcanvas").replaceWith('<canvas id="chartcanvas" style="width=500;height=500"></canvas>');
+	    var ctx = document.getElementById("chartcanvas").getContext("2d");
+	    window.myDoughnut = new Chart(ctx).Doughnut(doughnut_data, {responsive : true});
+	    console.log('success.');
+
+	    var market_value_data = res.detail.market_value_data;
+	    $("#canvas").replaceWith('<canvas  id="canvas" style="width=300;height=100"></canvas>');
+	    var ctx = document.getElementById("canvas").getContext("2d");
+	    window.myBar = new Chart(ctx).Bar(market_value_data, {responsive : true});
+	}
+    });
 }
 
 $("#topcat").change(function(){
@@ -40,10 +60,16 @@ $("#topcat").change(function(){
     }).done(function (data){
 	data = $.parseJSON(data);
 	if(data.code==0){
-	    $('#secondcat').empty().append('<option value="-1">--</option>')
-	    $.each(data.detail.cats, function(i, cat){
-		$('#secondcat').append('<option value="' + cat.id + '">'+ cat.name + '</option>')
-	    });
+	    if(data.detail.cats.length > 0){
+		$('#secondcat').empty().append('<option value="-1" selected="selected">--</option>')
+		$.each(data.detail.cats, function(i, cat){
+		    $('#secondcat').append('<option value="' + cat.id + '">'+ cat.name + '</option>')
+		});
+	    }else{
+		$('#secondcat').empty().append('<option value="-1" selected="selected">--</option>')
+		$('#thirdcat').empty().append('<option value="-1" selected="selected">--</option>')
+		update_table(1, 100);
+	    }
 	}
     });
 })
@@ -56,16 +82,17 @@ $("#secondcat").change(function(){
     }).done(function (data){
 	data = $.parseJSON(data);
 	if(data.code==0){
-	    $('#thirdcat').empty().append('<option value="-1">--</option>')
-	    $.each(data.detail.cats, function(i, cat){
-		$('#thirdcat').append('<option value="' + cat.id + '">'+ cat.name + '</option>')
-	    });
+	    if(data.detail.cats.length > 0){
+		$('#thirdcat').empty().append('<option value="-1" selected="selected">--</option>');
+		$.each(data.detail.cats, function(i, cat){
+		    $('#thirdcat').append('<option value="' + cat.id + '">'+ cat.name + '</option>')
+		});
+	    }else{
+		$('#thirdcat').empty().append('<option value="-1" selected="selected">--</option>');
+		update_table(1, 100);
+	    }
 	}
     });
-})
-
-$("#thirdcat").change(function(){
-    update_table(1, 100);
 })
 
 $(".btn-default").click(function(){
