@@ -17,13 +17,14 @@ function update_table(page, psize){
 	    $.each(res.detail.data, function(i, item){
 		var arr = [item.code,
 			   item.name,
+			   item.p_inc_percent,
 			   item.p_open,
 			   item.p_close,
 			   item.p_inc,
 			   item.p_earning_ratio,
 			   item.trade_money,
-			   item.market_value,
-			   item.is_suspend_trading]
+			   item.market_value]
+
 		table.fnAddData(arr);
 	    });
 	    table.fnDraw();

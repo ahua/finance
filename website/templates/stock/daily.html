@@ -11,11 +11,14 @@
 {% block main %}
 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
   <div class="row">
-    <div class="col-sm-4 col-md-5">
+    <div class="col-sm-3 col-md-3">
+    <canvas  id="topcanvas" style="width=300;height=300"></canvas>
+    </div>
+    <div class="col-sm-3 col-md-3">
     <canvas id="chartcanvas" style="width=500;height=500"/>
     </div>
-    <div class="col-sm-5 col-md-5">
-    <canvas  id="canvas" style="width=300;height=100"></canvas>
+    <div class="col-sm-3 col-md-4">
+    <canvas  id="canvas" style="width=300;height=300"></canvas>
     </div>
   </div>
 
@@ -46,13 +49,13 @@
         <tr>
           <th>代码</th>
 	  <th>名称</th>
+	  <th>涨幅</th>
           <th>open</th>
           <th>close</th>
           <th>inc</th>
           <th>市盈率</th>
           <th>交易额</th>
           <th>市值</th>
-          <th>停牌</th>
         </tr>
       </thead>
       <tbody>
@@ -73,8 +76,10 @@
   var ctx1 = document.getElementById("canvas").getContext("2d");
   window.myBar = new Chart(ctx1).Bar(market_value_data, {responsive : true});
       
-  var ctx2 = document.getElementById("chartcanvas").getContext("2d");
+  var ctx2 = document.getElementById("topcanvas").getContext("2d");
   window.myDoughnut = new Chart(ctx2).Doughnut(doughnutData, {responsive : true});
+
+  update_table(1, 100);
    }
 </script>
 {% end %}
