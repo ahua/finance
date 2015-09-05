@@ -101,6 +101,25 @@ class Traning:
                     self.month_datas.update(self._line_to_dict(values))
                     
 
+    def _init_ema(self):
+        # 第一天等于close
+        for keys, datas in [(self.valid_days, self.day_datas),
+                            (self.valid_weeks, self.week_datas),
+                            (self.valid_months, self.month_datas)]:
+            for i in xrange(0, len(keys)):
+                k = keys[i]
+                c_close = float(datas[k]["c.close"])
+                if i == 0:
+                    datas[k]["ema12"] = c_close
+                    datas[k]["ema26"] = c_close
+                else:
+                    previous_k = keys[i-1]
+                    previous_ema12 = datas[previous_k]["ema12"]
+                    previous_ema26 = datas[previous_k]["ema26"]
+                    datas[k]["ema12"] = 11.0/13 * previous_ema12 + 2.0 / 13 * c_close
+                    datas[k]["ema26"] = 25.0/27 * previous_ema26 + 2.0 / 27 * c_close
+                    
+                
     def __init__(self, day_file="day.csv", week_file="week.csv", month_file="month.csv"):
         self.day_datas = {}
         self.week_datas = {}
@@ -114,6 +133,7 @@ class Traning:
         self.valid_days = sorted(self.day_datas.keys())
         self.valid_weeks = sorted(self.week_datas.keys())
         self.valid_months = sorted(self.month_datas.keys())
+        self._init_ema()
         self.min_day = self.valid_days[0]
         self.max_day = self.valid_days[-1]
         self.min_week = self.valid_weeks[0]
@@ -309,7 +329,7 @@ class Traning:
                 dd = self._get_previous_month(dd)
         if len(datas) != c:
             return ''
-        return str(round(sum([float(i) for i in datas]) / c, 2))
+        return round(sum([float(i) for i in datas]) / c, 2)
     
             
     def _calc_kdj(self, year=None, month=None, day=None, cycle=None):
@@ -340,10 +360,45 @@ class Traning:
     def _calc_boll(self):
         pass
 
-    def _calc_macd(self):
-        pass
-    
+    def _calc_macd(self, year=None, month=None, day=None, cycle=None):
+        assert cycle in ['day', 'week', 'month']
+        dd = datetime.datetime(year, month, day).strftime("%Y/%m/%d")
+        if cycle == 'day':
+            if not self._valid_day(dd):
+                dd = self._get_previous_day(dd)
+            previous_dd = self._get_previous_day(dd)
+            datas = self.day_datas
+        elif cycle == 'week':
+            if not self._valid_week(dd):
+                dd = self._get_previous_week(dd)
+            previous_dd = self._get_previous_week(dd)
+            datas = self.week_datas
+        else:
+            if not self._valid_month(dd):
+                dd = self._get_previous_month(dd)
+            previous_dd = self._get_previous_month(dd)
+            datas = self.month_datas
 
+        c_close = self._get_c_close(dd)
+        ema12 = datas[dd]["ema12"]
+        ema26 = datas[dd]["ema26"]
+        diff = round(ema12 - ema26, 2)
+        previous_dea = round(float(datas[previous_dd]["macd.dea"]), 2)
+        dea = round(previous_dea * 8.0 / 10 + diff * 2.0 / 10, 2)
+        bar = round(2 * (diff - dea), 2)
+        return diff, dea, bar
+
+
+    def calc_macd_of_day(self, year=None, month=None, day=None):
+        return self._calc_macd(year, month, day, "day")
+
+    def calc_macd_of_week(self, year=None, month=None, day=None):
+        return self._calc_macd(year, month, day, "week")
+
+    def calc_macd_of_month(self, year=None, month=None, day=None):
+        return self._calc_macd(year, month, day, "month")
+    
+    
     def calc_ma5_of_day(self, year, month, day):
         return self._calc_ma(year=year, month=month, day=day, c=5, cycle="day")
 
@@ -454,3 +509,7 @@ if __name__ == "__main__":
     print t.calc_kdj_of_month(year, month, day)
 
     print 
+    print t.calc_macd_of_day(year, month, day)
+    print t.calc_macd_of_week(year, month, day)
+    print t.calc_macd_of_month(year, month, day)
+    
