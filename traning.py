@@ -55,7 +55,7 @@ class Traning:
                     self.datas.update(self._line_to_dict(values))
     
 
-    def __init__(self, datapath="9.csv"):
+    def __init__(self, datapath="day.csv"):
         self.datas = {}
         self.datapath = datapath
         self.col_width = None
