@@ -3,6 +3,7 @@
 
 import datetime
 import sys
+import math
 
 class Traning:
 
@@ -62,6 +63,7 @@ class Traning:
         d = {}
         for i in xrange(len(keys)):
             d[keys[i]] = values[i]
+        d["date"] = datetime.datetime.strptime(d["date"], "%Y/%m/%d").strftime("%Y/%m/%d")
         return {d["date"]: d}
 
     
@@ -154,7 +156,19 @@ class Traning:
             datas = self.month_datas
         return float(datas[dd]["c.close"])
 
-
+    def _get_ma(self, dd, c, cycle='day'):
+        assert cycle in ['day', 'week', 'month']
+        assert c in [5, 10, 20, 60, 120, 250]
+        if isinstance(dd, datetime.datetime):
+            dd = dd.strftime("%Y/%m/%d")
+        if cycle == 'day':
+            datas = self.day_datas
+        elif cycle == 'week':
+            datas = self.week_datas
+        else:
+            datas = self.month_datas
+        return float(datas[dd]["ma%s" % c])
+        
     def _get_high_and_low(self, dd, cycle='day', c=9):
         assert cycle in ['day', 'week', 'month']
         if isinstance(dd, datetime.datetime):
@@ -202,7 +216,7 @@ class Traning:
     
     def _bsearch(self, k, sorted_list):
         '''
-        返回index, 第一个小于k
+        返回index, 最后一个小于k
         '''
         if not sorted_list:
             return None
@@ -216,8 +230,12 @@ class Traning:
             if k <= sorted_list[mid]:
                 right = mid - 1
             else:
-                return mid
-        return None
+                # sorted_list[mid] < k
+                if sorted_list[mid+1] >= k:
+                    return mid
+                else:
+                    left = mid + 1
+        return left
             
             
     def _get_previous_day(self, dd):
@@ -346,7 +364,8 @@ class Traning:
         else:
             if not self._valid_month(dd):
                 dd = self._get_previous_month(dd)
-            previous_dd = self._get_previous_month(dd)                
+            previous_dd = self._get_previous_month(dd)
+        print dd, previous_dd
         c_close = self._get_c_close(dd, cycle)
         c_high, c_low = self._get_high_and_low(dd, cycle=cycle, c=9)
         rsv = (1.0 * (c_close - c_low) / (c_high - c_low)) * 100
@@ -357,9 +376,50 @@ class Traning:
         return k, d, j
         
 
-    def _calc_boll(self):
-        pass
+    def _calc_boll(self, year=None, month=None, day=None, cycle=None):
+        '''
+        N取20, k取
+        '''
+        N, k = 20, 2
+        assert cycle in ['day', 'week', 'month']
+        dd = datetime.datetime(year, month, day)
+        if cycle == 'day':
+            if not self._valid_day(dd):
+                dd = self._get_previous_day(dd)
+        elif cycle == 'week':
+            if not self._valid_week(dd):
+                dd = self._get_previous_week(dd)
+        else:
+            if not self._valid_month(dd):
+                dd = self._get_previous_month(dd)
+        dds = [dd]
+        for i in xrange(1, N):
+            if cycle == 'day':
+                previous_dd = self._get_previous_day(dds[0])
+            elif cycle == 'week':
+                previous_dd = self._get_previous_week(dds[0])
+            else:
+                previous_dd = self._get_previous_month(dds[0])
+            dds.insert(0, previous_dd)
+        c_closes = [self._get_c_close(i, cycle=cycle) for i in dds]
+        ma = self._get_ma(dds[-1], c=N, cycle=cycle)
+        mb = self._get_ma(dds[-2], c=N, cycle=cycle)
+        md = math.sqrt(sum([(c_close - ma)*(c_close-ma) for c_close in c_closes])*1.0/N)
+        up = round(mb + 2 * md, 2)
+        dn = round(mb - 2 * md, 2)
+        return ma, up, dn
 
+                          
+    def calc_boll_of_day(self, year=None, month=None, day=None):
+        return self._calc_boll(year, month, day, "day")
+
+    def calc_boll_of_week(self, year=None, month=None, day=None):
+        return self._calc_boll(year, month, day, "week")
+
+    def calc_boll_of_month(self, year=None, month=None, day=None):
+        return self._calc_boll(year, month, day, "month")
+
+    
     def _calc_macd(self, year=None, month=None, day=None, cycle=None):
         assert cycle in ['day', 'week', 'month']
         dd = datetime.datetime(year, month, day).strftime("%Y/%m/%d")
@@ -512,4 +572,9 @@ if __name__ == "__main__":
     print t.calc_macd_of_day(year, month, day)
     print t.calc_macd_of_week(year, month, day)
     print t.calc_macd_of_month(year, month, day)
+    
+    print
+    print t.calc_boll_of_day(year, month, day)
+    print t.calc_boll_of_week(year, month, day)
+    print t.calc_boll_of_month(year, month, day)
     
