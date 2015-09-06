@@ -4,6 +4,7 @@
 import datetime
 import sys
 import math
+import unittest
 
 class Traning:
 
@@ -28,7 +29,15 @@ class Traning:
         assert weeks == self.valid_weeks
         assert months == self.valid_months
 
-        
+        for i in xrange(1, len(self.valid_days)):
+            assert datetime.datetime.strptime(self.valid_days[i], "%Y/%m/%d") > datetime.datetime.strptime(self.valid_days[i-1], "%Y/%m/%d")
+        for i in xrange(1, len(self.valid_weeks)):
+            assert datetime.datetime.strptime(self.valid_weeks[i], "%Y/%m/%d") > datetime.datetime.strptime(self.valid_weeks[i-1], "%Y/%m/%d")
+        for i in xrange(1, len(self.valid_months)):
+            assert datetime.datetime.strptime(self.valid_months[i], "%Y/%m/%d") > datetime.datetime.strptime(self.valid_months[i-1], "%Y/%m/%d")
+        print 'assert test ok.'
+            
+            
     def _line_to_dict(self, values):
         keys = [
             "date",
@@ -169,6 +178,42 @@ class Traning:
             datas = self.month_datas
         return float(datas[dd]["ma%s" % c])
         
+    def _get_kdj(self, dd, cycle='day'):
+        assert cycle in ['day', 'week', 'month']
+        if isinstance(dd, datetime.datetime):
+            dd = dd.strftime("%Y/%m/%d")
+        if cycle == 'day':
+            datas = self.day_datas
+        elif cycle == 'week':
+            datas = self.week_datas
+        else:
+            datas = self.month_datas
+        return float(datas[dd]["kdj.k"]), float(datas[dd]["kdj.d"]), float(datas[dd]["kdj.j"])
+        
+    def _get_boll(self, dd, cycle='day'):
+        assert cycle in ['day', 'week', 'month']
+        if isinstance(dd, datetime.datetime):
+            dd = dd.strftime("%Y/%m/%d")
+        if cycle == 'day':
+            datas = self.day_datas
+        elif cycle == 'week':
+            datas = self.week_datas
+        else:
+            datas = self.month_datas
+        return float(datas[dd]["boll.boll"]), float(datas[dd]["boll.up"]), float(datas[dd]["boll.lb"])
+        
+    def _get_macd(self, dd, cycle='day'):
+        assert cycle in ['day', 'week', 'month']
+        if isinstance(dd, datetime.datetime):
+            dd = dd.strftime("%Y/%m/%d")
+        if cycle == 'day':
+            datas = self.day_datas
+        elif cycle == 'week':
+            datas = self.week_datas
+        else:
+            datas = self.month_datas
+        return float(datas[dd]["macd.dif"]), float(datas[dd]["macd.dea"]), float(datas[dd]["macd.macd"])
+        
     def _get_high_and_low(self, dd, cycle='day', c=9):
         assert cycle in ['day', 'week', 'month']
         if isinstance(dd, datetime.datetime):
@@ -200,18 +245,6 @@ class Traning:
             idx = idx - 1
         return high, low
             
-
-    def _get_kdj(self, dd, cycle='day'):
-        assert cycle in ['day', 'week', 'month']
-        if isinstance(dd, datetime.datetime):
-            dd = dd.strftime("%Y/%m/%d")
-        if cycle == 'day':
-            datas = self.day_datas
-        elif cycle == 'week':
-            datas = self.week_datas
-        else:
-            datas = self.month_datas
-        return float(datas[dd]["kdj.k"]), float(datas[dd]["kdj.d"])
 
     
     def _bsearch(self, k, sorted_list):
@@ -314,39 +347,39 @@ class Traning:
     
 
     def _calc_ma(self, year=None, month=None, day=None, c=None, cycle=None):
-        assert c in [5, 10, 20, 60, 120, 250, 12, 26, 9]
+        assert c in [5, 10, 20, 60, 120, 250]
         assert cycle in ['day', 'week', 'month']
         datas = []
+        dd = datetime.datetime(year, month, day)
         if cycle == 'day':
-            dd = datetime.datetime(year, month, day)
+            if not self._valid_day(dd):
+                dd = self._get_previous_day(dd)
             i = 0
             while i < c and dd:
                 if self._valid_day(dd):
-                    datas.insert(0, self._get_c_close(dd))
+                    datas.insert(0, self._get_c_close(dd, cycle=cycle))
                     i += 1
                 dd = self._get_previous_day(dd)
         elif cycle == 'week':
-            dd = datetime.datetime(year, month, day)
             if not self._valid_week(dd):
                 dd = self._get_previous_week(dd)
             i = 0
             while i < c and dd:
                 if self._valid_week(dd):
-                    datas.insert(0, self._get_c_close(dd))
+                    datas.insert(0, self._get_c_close(dd, cycle=cycle))
                     i += 1
                 dd = self._get_previous_week(dd)
         else:
-            dd = datetime.datetime(year, month, day)
             if not self._valid_month(dd):
                 dd = self._get_previous_month(dd)
             i = 0
             while i < c and dd:
                 if self._valid_day(dd):
-                    datas.insert(0, self._get_c_close(dd))
+                    datas.insert(0, self._get_c_close(dd, cycle=cycle))
                     i += 1
                 dd = self._get_previous_month(dd)
-        if len(datas) != c:
-            return ''
+                
+        assert len(datas) == c, '%s_%s_%s_%s_%s_%s' % (year, month, day, c, cycle, datas)
         return round(sum([float(i) for i in datas]) / c, 2)
     
             
@@ -365,11 +398,10 @@ class Traning:
             if not self._valid_month(dd):
                 dd = self._get_previous_month(dd)
             previous_dd = self._get_previous_month(dd)
-        print dd, previous_dd
         c_close = self._get_c_close(dd, cycle)
         c_high, c_low = self._get_high_and_low(dd, cycle=cycle, c=9)
         rsv = (1.0 * (c_close - c_low) / (c_high - c_low)) * 100
-        previous_k, previous_d = self._get_kdj(previous_dd, cycle=cycle)
+        previous_k, previous_d, _ = self._get_kdj(previous_dd, cycle=cycle)
         k = round(previous_k * 2/3.0 + rsv/3.0, 2)
         d = round(previous_d * 2/3.0 + k/3.0, 2)
         j = round(3*k - 2*d, 2)
@@ -406,8 +438,8 @@ class Traning:
         mb = self._get_ma(dds[-2], c=N, cycle=cycle)
         md = math.sqrt(sum([(c_close - ma)*(c_close-ma) for c_close in c_closes])*1.0/N)
         up = round(mb + 2 * md, 2)
-        dn = round(mb - 2 * md, 2)
-        return ma, up, dn
+        lb = round(mb - 2 * md, 2)
+        return ma, up, lb
 
                           
     def calc_boll_of_day(self, year=None, month=None, day=None):
@@ -526,55 +558,95 @@ class Traning:
         return self._calc_kdj(year, month, day, cycle="month")
     
     
-    
-    
+
+class TraningTest(unittest.TestCase):
+
+    def setUp(self):
+        self.t = Traning()
+
+    def tearDown(self):
+        print 'finish testing...'
+
+    def test_assert(self):
+        self.t.assert_test()    
+        
+    def test_ma(self):
+        for dd in self.t.valid_days[-10:-1]:
+            year, month, day = [int(i) for i in dd.split("/")]
+            cycle = 'day'
+            for c in [5, 10, 20, 60, 120, 250]:
+                fun = getattr(self.t, 'calc_ma%s_of_%s' % (c, cycle))
+                res = fun(year, month, day)
+                answer = self.t._get_ma(dd, c=c, cycle=cycle)
+                diff = round(abs(res-answer))
+                assert diff == 0, '%s_%s_%s(res=%s, answer=%s, diff=%s)' % (dd, cycle, c, res, answer, diff)
+
+
+        for dd in self.t.valid_weeks[-10:-1]:
+            year, month, day = [int(i) for i in dd.split("/")]
+            cycle = 'week'
+            for c in [5, 10, 20, 60, 120, 250]:
+                fun = getattr(self.t, 'calc_ma%s_of_%s' % (c, cycle))
+                res = fun(year, month, day)
+                answer = self.t._get_ma(dd, c=c, cycle=cycle)
+                diff = round(abs(res-answer))
+                assert diff == 0, '%s_%s_%s(res=%s, answer=%s, diff=%s)' % (dd, cycle, c, res, answer, diff)
+
+
+        for dd in self.t.valid_months[-10:-1]:
+            year, month, day = [int(i) for i in dd.split("/")]
+            cycle = 'month'
+            for c in [5, 10, 20, 60, 120, 250]:
+                fun = getattr(self.t, 'calc_ma%s_of_%s' % (c, cycle))
+                res = fun(year, month, day)
+                answer = self.t._get_ma(dd, c=c, cycle=cycle)
+                diff = round(abs(res-answer))
+                assert diff == 0, '%s_%s_%s(res=%s, answer=%s, diff=%s)' % (dd, cycle, c, res, answer, diff)
+
+                
+                
+    def test_kdj(self):
+        for dd in self.t.valid_days[-10:-1]:
+            year, month, day = [int(i) for i in dd.split("/")]
+            self.t.calc_kdj_of_day(year, month, day)
+            
+        for dd in self.t.valid_weeks[-10:-1]:
+            year, month, day = [int(i) for i in dd.split("/")]
+            self.t.calc_kdj_of_week(year, month, day)
+            
+        for dd in self.t.valid_months[-10:-1]:
+            year, month, day = [int(i) for i in dd.split("/")]
+            self.t.calc_kdj_of_month(year, month, day)
+
+    def test_macd(self):
+        for dd in self.t.valid_days[-10:-1]:
+            year, month, day = [int(i) for i in dd.split("/")]
+            self.t.calc_macd_of_day(year, month, day)
+
+        for dd in self.t.valid_weeks[-10:-1]:
+            year, month, day = [int(i) for i in dd.split("/")]
+            self.t.calc_macd_of_week(year, month, day)
+
+        for dd in self.t.valid_months[-10:-1]:
+            year, month, day = [int(i) for i in dd.split("/")]
+            self.t.calc_macd_of_month(year, month, day)
+
+
+    def test_boll(self):
+        for dd in self.t.valid_days[-10:-1]:
+            year, month, day = [int(i) for i in dd.split("/")]
+            self.t.calc_boll_of_day(year, month, day)
+
+        for dd in self.t.valid_weeks[-10:-1]:
+            year, month, day = [int(i) for i in dd.split("/")]
+            self.t.calc_boll_of_week(year, month, day)
+
+        for dd in self.t.valid_months[-10:-1]:
+            year, month, day = [int(i) for i in dd.split("/")]
+            self.t.calc_boll_of_month(year, month, day)
+
+        
 if __name__ == "__main__":
-    t = Traning()
+    unittest.main()
 
-    # t.assert_test()
-    print 'assert test ok.'
-    
-    if len(sys.argv) >= 4:
-        year, month, day = int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3])
-    else:
-        year, month, day = 2015, 9, 1
-    print t.calc_ma5_of_day(year, month, day)
-    print t.calc_ma10_of_day(year, month, day)
-    print t.calc_ma20_of_day(year, month, day)
-    print t.calc_ma60_of_day(year, month, day)
-    print t.calc_ma120_of_day(year, month, day)
-    print t.calc_ma250_of_day(year, month, day)
-
-    print 
-    
-    print t.calc_ma5_of_week(year, month, day)
-    print t.calc_ma10_of_week(year, month, day)
-    print t.calc_ma20_of_week(year, month, day)
-    print t.calc_ma60_of_week(year, month, day)
-    print t.calc_ma120_of_week(year, month, day)
-    print t.calc_ma250_of_week(year, month, day)
-
-    print
-    
-    print t.calc_ma5_of_month(year, month, day)
-    print t.calc_ma10_of_month(year, month, day)
-    print t.calc_ma20_of_month(year, month, day)
-    print t.calc_ma60_of_month(year, month, day)
-    print t.calc_ma120_of_month(year, month, day)
-    print t.calc_ma250_of_month(year, month, day)
-
-    print
-    print t.calc_kdj_of_day(year, month, day)
-    print t.calc_kdj_of_week(year, month, day)
-    print t.calc_kdj_of_month(year, month, day)
-
-    print 
-    print t.calc_macd_of_day(year, month, day)
-    print t.calc_macd_of_week(year, month, day)
-    print t.calc_macd_of_month(year, month, day)
-    
-    print
-    print t.calc_boll_of_day(year, month, day)
-    print t.calc_boll_of_week(year, month, day)
-    print t.calc_boll_of_month(year, month, day)
     
